@@ -1,6 +1,6 @@
 import simplejson as json
 
-from flask import Flask, Response, url_for
+from flask import Flask, Response, url_for, render_template
 
 import web
 import sql
@@ -84,11 +84,10 @@ def hello_world():
 def site_map():
     links = []
     for rule in app.url_map.iter_rules():
-        # Filter out rules we can't navigate to in a browser
-        # and rules that require parameters
-        if "GET" in rule.methods and len(rule.defaults) >= len(rule.arguments):
-            url = url_for(rule.endpoint)
+        if len(rule.defaults) >= len(rule.arguments):
+            url = url_for(rule.endpoint, **(rule.defaults or {}))
             links.append((url, rule.endpoint))
+    return render_template("all_links.html", links=links)
 
 
 

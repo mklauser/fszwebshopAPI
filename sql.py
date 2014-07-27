@@ -233,3 +233,6 @@ class db_conn:
                         """
         sub_categories = self.query_db(select_cate_q,args=(top_category_id))
         return sub_categories
+
+
+    def place_order

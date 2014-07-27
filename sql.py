@@ -1,9 +1,10 @@
 __author__ = 'michi'
-#This file handel's the connection to the SQL db
+# This file handel's the connection to the SQL db
 import MySQLdb
-
 from functools import wraps
+
 from flask import request
+
 
 def cached(timeout=5 * 60, key='view/%s'):
     def decorator(f):
@@ -16,7 +17,9 @@ def cached(timeout=5 * 60, key='view/%s'):
             rv = f(*args, **kwargs)
             cache.set(cache_key, rv, timeout=timeout)
             return rv
+
         return decorated_function
+
     return decorator
 
 
@@ -26,7 +29,6 @@ class db_conn:
 
     """
     __name__ = 'db_conn'
-
 
 
     def __init__(self, app):
@@ -90,15 +92,15 @@ class db_conn:
         custemers = self.query_db(select_cust_q, args=(customer_group_id))
         return custemers
 
-    def get_customers_by_customer_id(self,customer_id):
+    def get_customers_by_customer_id(self, customer_id):
         """
         returns dict
         ['customer_id']
         ['firstname']
         ['lastname']
         """
-        select_cust_cust_q='SELECT customer_id, firstname, lastname FROM oc_customer WHERE customer_id = %s'
-        custemer = self.query_db(select_cust_cust_q,args=(customer_id))[0]
+        select_cust_cust_q = 'SELECT customer_id, firstname, lastname FROM oc_customer WHERE customer_id = %s'
+        custemer = self.query_db(select_cust_cust_q, args=(customer_id))[0]
         return custemer
 
     def get_manufacturers(self):
@@ -106,9 +108,9 @@ class db_conn:
         manufacturers = self.query_db(select_mane_q)
         return manufacturers
 
-    def get_manufacturer_by_id(self,manufacturer_id):
-        select_mane_name_q='SELECT name FROM oc_manufacturer WHERE manufacturer_id =%s'
-        manufacturer = self.query_db(select_mane_name_q,args=(manufacturer_id))
+    def get_manufacturer_by_id(self, manufacturer_id):
+        select_mane_name_q = 'SELECT name FROM oc_manufacturer WHERE manufacturer_id =%s'
+        manufacturer = self.query_db(select_mane_name_q, args=(manufacturer_id))
         return manufacturer
 
 
@@ -120,30 +122,30 @@ class db_conn:
 
     def get_products_by_category(self, category_id):
         select_prod_cate_q = 'SELECT pr.product_id, pr.model, pr.ean, pr.location, pr.manufacturer_id, pr.price, oc_product_description.name ,oc_product_description.description FROM oc_product pr JOIN oc_product_to_category ON pr.product_id = oc_product_to_category.product_id JOIN oc_product_description ON pr.product_id = oc_product_description.product_id WHERE oc_product_to_category.category_id = %s ORDER BY pr.sort_order ASC'
-        products = self.query_db(select_prod_cate_q,args=(category_id))
-        return  products
+        products = self.query_db(select_prod_cate_q, args=(category_id))
+        return products
 
 
-    def get_categories_by_product_id(self,product_id):
+    def get_categories_by_product_id(self, product_id):
         """
         returns dict
         ['category_id']
         ['name']
         ['description']
         """
-        select_cate_prod_q='SELECT oc_category_description.category_id, oc_category_description.name, oc_category_description.description FROM oc_category_description INNER JOIN oc_product_to_category ON oc_category_description.category_id = oc_product_to_category.category_id WHERE oc_product_to_category.product_id =%s'
-        categories = self.query_db(select_cate_prod_q,args=(product_id))
+        select_cate_prod_q = 'SELECT oc_category_description.category_id, oc_category_description.name, oc_category_description.description FROM oc_category_description INNER JOIN oc_product_to_category ON oc_category_description.category_id = oc_product_to_category.category_id WHERE oc_product_to_category.product_id =%s'
+        categories = self.query_db(select_cate_prod_q, args=(product_id))
         return categories
 
 
-    def get_manufacturer_by_product_id(self,product_id):
+    def get_manufacturer_by_product_id(self, product_id):
         """
         returns dict
         ['manufacturer_id'] =manufacturer_id
         ['name'] = name
         """
-        select_manu_prod_q='SELECT oc_manufacturer.manufacturer_id, oc_manufacturer.name FROM oc_manufacturer INNER JOIN oc_product ON oc_manufacturer.manufacturer_id = oc_product.manufacturer_id WHERE oc_product.product_id =%s'
-        manufacturer = self.query_db(select_manu_prod_q,args=(product_id))
+        select_manu_prod_q = 'SELECT oc_manufacturer.manufacturer_id, oc_manufacturer.name FROM oc_manufacturer INNER JOIN oc_product ON oc_manufacturer.manufacturer_id = oc_product.manufacturer_id WHERE oc_product.product_id =%s'
+        manufacturer = self.query_db(select_manu_prod_q, args=(product_id))
         return manufacturer
 
 
@@ -153,53 +155,53 @@ class db_conn:
         return products
 
 
-    def get_product_by_id(self,product_id):
-        select_prod_q='SELECT *,oc_product_description.name as display_name,oc_product_description.description as display_description  FROM oc_product JOIN oc_product_description ON oc_product.product_id= oc_product_description.product_id WHERE oc_product.product_id = %s'
+    def get_product_by_id(self, product_id):
+        select_prod_q = 'SELECT *,oc_product_description.name as display_name,oc_product_description.description as display_description  FROM oc_product JOIN oc_product_description ON oc_product.product_id= oc_product_description.product_id WHERE oc_product.product_id = %s'
         product = self.query_db(select_prod_q, args=(product_id))
         return product
 
 
-    def has_product_options(self,product_id):
+    def has_product_options(self, product_id):
         """
         Returns the number of options for a given product_id. If the product has no options it returns 0.
         """
-        select_prod_opti_q='SELECT product_option_id, product_id, option_id FROM oc_product_option WHERE product_id = %s'
-        options = self.query_db(select_prod_opti_q,args=(product_id))
+        select_prod_opti_q = 'SELECT product_option_id, product_id, option_id FROM oc_product_option WHERE product_id = %s'
+        options = self.query_db(select_prod_opti_q, args=(product_id))
         if len(options) == 0:
             return 0
         else:
             return len(options)
 
 
-    def get_options_by_product(self,product_id):
+    def get_options_by_product(self, product_id):
 
-        select_opti_prod_q= ("\n"
-                             "        SELECT  oc_product.model, oc_product.location, oc_product_option_value.product_option_id as product_option_id , oc_product_option_value.product_id as product_id, oc_product_option_value.product_option_value_id as product_option_value_id,\n"
-                             "        oc_option_description.name as option_description_name ,oc_product_option_value.quantity, oc_product_option_value.price, oc_option_value_description.name as option_value_description,  oc_option_value_description.option_value_id\n"
-                             "        FROM oc_product_option_value\n"
-                             "        JOIN oc_option_description ON oc_product_option_value.option_id = oc_option_description.option_id\n"
-                             "        JOIN oc_option_value_description ON oc_product_option_value.option_value_id = oc_option_value_description.option_value_id\n"
-                             "        JOIN oc_product ON oc_product_option_value.product_id = oc_product.product_id\n"
-                             "        WHERE oc_product_option_value.product_id =%s \n"
-                             "        "
+        select_opti_prod_q = ("\n"
+                              "        SELECT  oc_product.model, oc_product.location, oc_product_option_value.product_option_id as product_option_id , oc_product_option_value.product_id as product_id, oc_product_option_value.product_option_value_id as product_option_value_id,\n"
+                              "        oc_option_description.name as option_description_name ,oc_product_option_value.quantity, oc_product_option_value.price, oc_option_value_description.name as option_value_description,  oc_option_value_description.option_value_id\n"
+                              "        FROM oc_product_option_value\n"
+                              "        JOIN oc_option_description ON oc_product_option_value.option_id = oc_option_description.option_id\n"
+                              "        JOIN oc_option_value_description ON oc_product_option_value.option_value_id = oc_option_value_description.option_value_id\n"
+                              "        JOIN oc_product ON oc_product_option_value.product_id = oc_product.product_id\n"
+                              "        WHERE oc_product_option_value.product_id =%s \n"
+                              "        "
         )
-        #select_opti_prod_q='SELECT * FROM  oc_product_option_value JOIN oc_product_option ON  oc_product_option_value.option_id = oc_product_option.option_id WHERE oc_product_option.product_id = %s'
-        options = self.query_db(select_opti_prod_q,args=(product_id))
+        # select_opti_prod_q='SELECT * FROM  oc_product_option_value JOIN oc_product_option ON  oc_product_option_value.option_id = oc_product_option.option_id WHERE oc_product_option.product_id = %s'
+        options = self.query_db(select_opti_prod_q, args=(product_id))
         return options
 
 
-    def get_product_with_option(self,product_id,option_value_id):
-        select_prod_q= ("\n"
-                             "        SELECT  oc_product.model, oc_product.location, oc_product_option_value.product_option_id as product_option_id , oc_product_option_value.product_id as product_id, oc_product_option_value.product_option_value_id as product_option_value_id,\n"
-                             "        oc_option_description.name as option_description_name ,oc_product_option_value.quantity, oc_product_option_value.price, oc_option_value_description.name as option_value_description,  oc_option_value_description.option_value_id\n"
-                             "        FROM oc_product_option_value\n"
-                             "        JOIN oc_option_description ON oc_product_option_value.option_id = oc_option_description.option_id\n"
-                             "        JOIN oc_option_value_description ON oc_product_option_value.option_value_id = oc_option_value_description.option_value_id\n"
-                             "        JOIN oc_product ON oc_product_option_value.product_id = oc_product.product_id\n"
-                             "        WHERE oc_product_option_value.product_id =%s AND  oc_option_value_description.option_value_id  =  %s\n"
-                             "        "
+    def get_product_with_option(self, product_id, option_value_id):
+        select_prod_q = ("\n"
+                         "        SELECT  oc_product.model, oc_product.location, oc_product_option_value.product_option_id as product_option_id , oc_product_option_value.product_id as product_id, oc_product_option_value.product_option_value_id as product_option_value_id,\n"
+                         "        oc_option_description.name as option_description_name ,oc_product_option_value.quantity, oc_product_option_value.price, oc_option_value_description.name as option_value_description,  oc_option_value_description.option_value_id\n"
+                         "        FROM oc_product_option_value\n"
+                         "        JOIN oc_option_description ON oc_product_option_value.option_id = oc_option_description.option_id\n"
+                         "        JOIN oc_option_value_description ON oc_product_option_value.option_value_id = oc_option_value_description.option_value_id\n"
+                         "        JOIN oc_product ON oc_product_option_value.product_id = oc_product.product_id\n"
+                         "        WHERE oc_product_option_value.product_id =%s AND  oc_option_value_description.option_value_id  =  %s\n"
+                         "        "
         )
-        product = self.query_db(select_prod_q,args=(product_id,option_value_id))[0]
+        product = self.query_db(select_prod_q, args=(product_id, option_value_id))[0]
         return product
 
 
@@ -213,7 +215,6 @@ class db_conn:
         return top_categories
 
 
-
     def get_categories(self):
         select_cate_q = """ SELECT oc_category.category_id, oc_category.image, oc_category.sort_order,  oc_category_description.name,oc_category_description.description
                             FROM oc_category
@@ -224,15 +225,15 @@ class db_conn:
         return categories
 
 
-    def get_sub_categories_for_top(self,top_category_id):
+    def get_sub_categories_for_top(self, top_category_id):
 
         select_cate_q = """ SELECT oc_category.category_id, oc_category.image, oc_category.sort_order,  oc_category_description.name,oc_category_description.description
                             FROM oc_category
                             JOIN oc_category_description ON oc_category.category_id = oc_category_description.category_id
                             WHERE oc_category.status = 1 AND oc_category.top = 0 AND oc_category.parent_id = %s ORDER BY oc_category.sort_order ASC
                         """
-        sub_categories = self.query_db(select_cate_q,args=(top_category_id))
+        sub_categories = self.query_db(select_cate_q, args=(top_category_id))
         return sub_categories
 
 
-    def place_order
+        #    def place_order

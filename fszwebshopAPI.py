@@ -1,6 +1,6 @@
 import simplejson as json
 
-from flask import Flask, Response
+from flask import Flask, Response, url_for
 
 import web
 import sql
@@ -16,28 +16,34 @@ mysqlcon = sql.db_conn(app)
 data = mysqlcon.get_customers()
 mycucustomers = web.customers(mysqlcon)
 
-print(data)
-
 
 @app.route('/get/customer', methods=['GET'])
 def get_customers():
-    print('---------')
+    """
+    Get all available customers from the OC DB.
+    :return: single json.
+    """
     mycucustomers.set_no_filter()
     return Response(json.dumps(mycucustomers.customers), mimetype='application/json')
 
 
 @app.route('/get/categories', methods=['GET'])
 def get_categories():
-    print('---------')
+    """
+    Get all available categories from the OC DB.
+    :return: single json.
+    """
     mycategories = web.categories(mysqlcon)
     return Response(json.dumps(mycategories.get_top_categories()), mimetype='application/json')
 
 
 @app.route('/get/sub_category_<cat_id>.json', methods=['GET', 'POST'])
 def get_sub_categories_product(cat_id):
-    print(cat_id)
+    """
+    Get all sub-categories by category ID from the OC DB.
+    :return: single json.
+    """
     category_id = int(cat_id)
-    print(category_id)
     mycategories = web.categories(mysqlcon)
     products = mycategories.get_sub_categories_to_top(category_id)
     return Response(json.dumps(products), mimetype='application/json')
@@ -45,9 +51,11 @@ def get_sub_categories_product(cat_id):
 
 @app.route('/get/products_by_cat_id_<cat_id>', methods=['GET', 'POST'])
 def get_product_by_cat_id(cat_id):
-    print(cat_id)
+    """
+    Get all products by category ID from the OC DB.
+    :return: single json.
+    """
     category_id = int(cat_id)
-    print(category_id)
     mycategories = web.categories(mysqlcon)
     products = mycategories.get_products_by_category(category_id)
     return Response(json.dumps(products, use_decimal=True), mimetype='application/json')
@@ -55,10 +63,11 @@ def get_product_by_cat_id(cat_id):
 
 @app.route('/get/product_by_id_<product_id>', methods=['GET', 'POST'])
 def get_product_cat_id(product_id):
-    print(product_id)
+    """
+    Get product by product ID from the OC DB.
+    :return: single json.
+    """
     product_id = int(product_id)
-
-    print(product_id)
     current_product = web.product(product_id, mysqlcon)
     current_product.product['date_added'] = ''
     current_product.product['date_available'] = ''
@@ -69,7 +78,18 @@ def get_product_cat_id(product_id):
 
 @app.route('/')
 def hello_world():
-    return 'bla'
+    return 'To see a site map go to %s'%url_for('site_map')
+
+@app.route("/site-map")
+def site_map():
+    links = []
+    for rule in app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods and len(rule.defaults) >= len(rule.arguments):
+            url = url_for(rule.endpoint)
+            links.append((url, rule.endpoint))
+
 
 
 if __name__ == '__main__':

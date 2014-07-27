@@ -37,7 +37,7 @@ def get_categories():
     return Response(json.dumps(mycategories.get_top_categories()), mimetype='application/json')
 
 
-@app.route('/get/sub_category_<cat_id>.json', methods=['GET', 'POST'])
+@app.route('/get/sub_category_<cat_id>', methods=['GET', 'POST'])
 def get_sub_categories_product(cat_id):
     """
     Get all sub-categories by category ID from the OC DB.
@@ -82,14 +82,22 @@ def hello_world():
 
 @app.route("/site-map")
 def site_map():
-    links = []
+    import urllib
+    output = []
     for rule in app.url_map.iter_rules():
-        if len(rule.defaults) >= len(rule.arguments):
-            url = url_for(rule.endpoint, **(rule.defaults or {}))
-            links.append((url, rule.endpoint))
-    return render_template("all_links.html", links=links)
+
+        options = {}
+        for arg in rule.arguments:
+            options[arg] = "[{0}]".format(arg)
+
+        methods = ','.join(rule.methods)
+        url = url_for(rule.endpoint, **options)
+        line = urllib.unquote("{:50s} {:20s} {}".format(rule.endpoint, methods, url))
+        output.append(line)
+
+    return render_template("all_links.html", links=output)
 
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',debug=True)

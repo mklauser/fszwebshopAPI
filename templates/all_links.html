@@ -1,6 +1,6 @@
 {# all_links.html #}
 <ul>
-{% for url, endpoint in links %}
-<li><a href="{{ url }}">{{ endpoint }}</a></li>
+{% for url in links %}
+    {{ url }} </br>
 {% endfor %}
 </ul>

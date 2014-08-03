@@ -277,7 +277,19 @@ class categories:
         self.top_categories = self.sql_conn.get_top_categories()
 
     def get_top_categories(self):
-        return self.top_categories
+        _top_categories = {}
+        _top_categories['categories'] = self.top_categories
+        return _top_categories
+
+    def get_top_categories_with_subcat(self):
+        _top_categories = {}
+        _top_categories['categories'] = self.top_categories
+        for cat in _top_categories['categories']:
+            cat['sub_categories'] = self.get_sub_categories_to_top(
+                cat['category_id'])
+        return _top_categories
+
+
 
     def get_all_categories(self):
         return  self.all_categories

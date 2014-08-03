@@ -34,7 +34,19 @@ def get_categories():
     :return: single json.
     """
     mycategories = web.categories(mysqlcon)
+
     return Response(json.dumps(mycategories.get_top_categories()), mimetype='application/json')
+
+
+@app.route('/get/categories_with_subcat', methods=['GET'])
+def get_categories_with_subcat():
+    """
+    Get all available categories from the OC DB.
+    :return: single json.
+    """
+    mycategories = web.categories(mysqlcon)
+
+    return Response(json.dumps(mycategories.get_top_categories_with_subcat()), mimetype='application/json')
 
 
 @app.route('/get/sub_category_<cat_id>', methods=['GET', 'POST'])
@@ -74,6 +86,8 @@ def get_product_cat_id(product_id):
     current_product.product['date_modified'] = ''
     current_product.product['price'] = ''
     return Response(json.dumps(current_product.product, use_decimal=True), mimetype='application/json')
+
+
 
 
 @app.route('/')

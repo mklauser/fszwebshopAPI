@@ -107,6 +107,12 @@ class customers:
         self.current_customer_id = None
         self.__update_function_names()
 
+    def get_customer_with_orderer(self):
+        customers = self.sql_conn.get_customers()
+        for cust in customers:
+            cust['orderer'] = self.sql_conn.get_orderer(cust['customer_id'])
+        return customers
+
     def set_group(self, group_id):
         self.customers = self.sql_conn.get_customers_by_groupe(group_id)
         self.__update_function_names()

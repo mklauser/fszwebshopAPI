@@ -80,6 +80,12 @@ class db_conn:
         custemers = self.query_db(select_cust_q)
         return custemers
 
+    def get_orderer(self,customer_id):
+        select_cust_q = "SELECT address_id, firstname, lastname, company, address_1, address_2, city, postcode FROM oc_address WHERE" \
+                         " customer_id = %s"
+        orderer = self.query_db(select_cust_q, args=(customer_id))
+        return orderer
+
     @cached
     def get_customer_groups(self):
         select_cust_grou_q = "SELECT customer_group_id, name, description FROM oc_customer_group_description"

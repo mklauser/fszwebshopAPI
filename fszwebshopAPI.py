@@ -1,6 +1,7 @@
 import simplejson as json
 
 from flask import Flask, Response, url_for, render_template
+from flask.ext.cors import CORS
 
 import web
 import sql
@@ -11,6 +12,8 @@ app.config.from_object('config')
 app.config.items()
 
 app.test_request_context()
+
+cors = CORS(app)
 
 mysqlcon = sql.db_conn(app)
 data = mysqlcon.get_customers()
@@ -23,8 +26,8 @@ def get_customers():
     Get all available customers from the OC DB.
     :return: single json.
     """
-    mycucustomers.set_no_filter()
-    return Response(json.dumps(mycucustomers.customers), mimetype='application/json')
+    return Response(json.dumps(mycucustomers.get_customer_with_orderer()),  mimetype='application/json')
+
 
 
 @app.route('/get/categories', methods=['GET'])
